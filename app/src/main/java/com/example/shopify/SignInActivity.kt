@@ -27,28 +27,31 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.time.chrono.JapaneseEra.values
 
 class SignInActivity : AppCompatActivity() {
+
+    private val RC_SIGN_IN: Int = 123
+    private val TAG = "SignInActivity Tag"
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val RC_SIGN_IN = 123
-    private val TAG = "SignInActivityTag"
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
+        // Configure Google Sign In
+        supportActionBar?.hide()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = Firebase.auth
 
-        signInButton.setOnClickListener{
+        signInButton.setOnClickListener {
             signIn()
         }
+
     }
 
     override fun onStart() {
@@ -61,23 +64,24 @@ class SignInActivity : AppCompatActivity() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }
     }
 
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
-            val account = task.getResult(ApiException::class.java)!!
+            val account = completedTask.getResult(ApiException::class.java)!!
             Log.d(TAG, "firebaseAuthWithGoogle:" + account.id)
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: ApiException) {
-            Log.w(TAG, "Google sign in failed: $e", e)
+            Log.w(TAG, "signInResult:failed code=" + e.statusCode)
+
         }
     }
 
@@ -88,23 +92,24 @@ class SignInActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             val auth = auth.signInWithCredential(credential).await()
             val firebaseUser = auth.user
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 updateUI(firebaseUser)
             }
         }
+
     }
 
     private fun updateUI(firebaseUser: FirebaseUser?) {
-        if (firebaseUser != null){
+        if(firebaseUser != null) {
 
             val user = User(firebaseUser.uid, firebaseUser.displayName, firebaseUser.photoUrl.toString())
-            val userDao = UserDao()
-            userDao.addUsers(user)
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            val usersDao = UserDao()
+            usersDao.addUsers(user)
+
+            val mainActivityIntent = Intent(this, MainActivity::class.java)
+            startActivity(mainActivityIntent)
             finish()
-        }
-        else{
+        } else {
             signInButton.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
         }

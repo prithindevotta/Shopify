@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Shopify</string>
     <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="font_family_black">sans-serif-black</string>
+    <string name="search">Search</string>
+    <string name="send_message">Send Message</string>
+    <string name="search_product">Search Product</string>
+    <string name="details">Details</string>
+    <string name="signout">SignOut</string>
+    <string name="tags"><i><b>tags:</b></i></string>
 </resources>

@@ -1,7 +1,23 @@
 package com.example.shopify
 
+import android.content.ContentResolver
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
+import com.google.android.gms.common.internal.TelemetryLogging.getClient
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeler
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.ImageLabeling.getClient
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import java.io.InputStream
+
+
 class Utils {
     companion object {
+
+
         private const val SECOND_MILLIS = 1000
         private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
         private const val HOUR_MILLIS = 60 * MINUTE_MILLIS
@@ -30,5 +46,6 @@ class Utils {
                 (diff / DAY_MILLIS).toString() + " days ago"
             }
         }
+
     }
 }
